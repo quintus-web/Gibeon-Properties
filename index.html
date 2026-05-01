@@ -3,140 +3,199 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gibeon Properties | Secure the Land</title>
+    <title>Gibeon Properties | Secure The Plot</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;500;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;500;700;900&display=swap" rel="stylesheet">
     <style>
-        body { font-family: 'Space Grotesk', sans-serif; scroll-behavior: smooth; }
-        .glass { background: rgba(255, 255, 255, 0.05); backdrop-filter: blur(10px); }
-        .neon-border { border: 1px solid rgba(163, 230, 53, 0.3); }
+        body { font-family: 'Space Grotesk', sans-serif; background-color: #050505; color: white; scroll-behavior: smooth; }
+        .glass { background: rgba(255, 255, 255, 0.03); backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.08); }
+        .filter-btn.active { background-color: #a3e635; color: black; border-color: #a3e635; }
     </style>
 </head>
-<body class="bg-[#0f0f0f] text-white overflow-x-hidden">
+<!-- Floating WhatsApp Button (Fixed for Gibeon Properties) -->
+    <a href="https://wa.me/254724389620?text=Yo!%20I'm%20on%20the%20Gibeon%20website%20and%20want%20to%20secure%20a%20plot." 
+       target="_blank" 
+       class="fixed bottom-8 right-8 z-[150] bg-[#25D366] p-5 rounded-full shadow-2xl hover:scale-110 active:scale-95 transition-all flex items-center justify-center border-4 border-black">
+        <svg class="w-8 h-8 fill-black" viewBox="0 0 24 24">
+            <path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.588-5.946 0-6.556 5.332-11.888 11.888-11.888 3.176 0 6.161 1.237 8.404 3.48s3.481 5.229 3.481 8.405c0 6.555-5.332 11.89-11.888 11.89-2.015 0-4.004-.51-5.787-1.478l-6.21 1.63zm6.303-4.062l.352.209c1.472.873 3.167 1.334 4.9 1.334 5.01 0 9.088-4.078 9.088-9.087 0-2.43-.945-4.713-2.661-6.43s-4-2.661-6.427-2.661c-5.01 0-9.088 4.079-9.088 9.089 0 1.764.509 3.488 1.473 5l.23.357-1.002 3.658 3.735-.98z"/>
+        </svg>
+    </a>
 
-    <nav class="flex justify-between items-center p-6 max-w-7xl mx-auto">
-        <div class="text-2xl font-bold tracking-tighter text-lime-400">GIBEON PROPERTIES </div>
-        <div class="hidden md:flex gap-8 text-sm font-medium uppercase tracking-widest">
-            <a href="#listings" class="hover:text-lime-400 transition">The Listings</a>
-            <a href="#" class="hover:text-lime-400 transition">How it Works</a>
+    <!-- Updated Script for Menu & Success Messages -->
+    <script>
+        // Toggle Mobile Menu
+        function toggleMenu() {
+            const menu = document.getElementById('mobileMenu');
+            menu.classList.toggle('hidden');
+        }
+
+        // Handle Filter Button Clicks (Visual Only)
+        const filterBtns = document.querySelectorAll('.filter-btn');
+        filterBtns.forEach(btn => {
+            btn.addEventListener('click', () => {
+                filterBtns.forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+            });
+        });
+
+        // Form Submission Catch (Efficient & Fun)
+        document.querySelector('#visit form').onsubmit = (e) => {
+            e.preventDefault();
+            alert("Bet! Your site visit is confirmed. We'll hit you up on WhatsApp to fix the time.");
+        };
+    </script>
+<body>
+
+    <!-- Nav with Mobile Menu -->
+    <nav class="fixed top-0 w-full z-[100] glass px-6 py-4">
+        <div class="max-w-7xl mx-auto flex justify-between items-center">
+            <div class="text-2xl font-black tracking-tighter">GIBEON.</div>
+            
+            <!-- Desktop Links -->
+            <div class="hidden md:flex gap-8 text-[10px] font-bold uppercase tracking-widest">
+                <a href="#about" class="hover:text-lime-400 transition">About</a>
+                <a href="#listings" class="hover:text-lime-400 transition">Listings</a>
+                <a href="#faq" class="hover:text-lime-400 transition">FAQ</a>
+                <a href="#contact" class="hover:text-lime-400 transition">Contact</a>
+            </div>
+
+            <!-- Mobile Toggle -->
+            <button onclick="toggleMenu()" class="md:hidden text-2xl">☰</button>
         </div>
-        <a href="https://wa.me/254700000000?text=Yo!%20I%20saw%20the%20PlotPoint%20preview%20and%20want%20to%20chat." 
-           target="_blank" 
-           class="bg-lime-400 text-black px-6 py-2 rounded-full font-bold text-sm hover:scale-105 transition">
-           DM US
-        </a>
+
+        <!-- Mobile Menu Overlay -->
+        <div id="mobileMenu" class="hidden fixed inset-0 bg-black flex flex-col items-center justify-center gap-8 text-3xl font-black uppercase">
+            <button onclick="toggleMenu()" class="absolute top-6 right-6 text-xl">✕</button>
+            <a href="#about" onclick="toggleMenu()">About</a>
+            <a href="#listings" onclick="toggleMenu()">Listings</a>
+            <a href="#faq" onclick="toggleMenu()">FAQ</a>
+            <a href="#contact" onclick="toggleMenu()">Contact</a>
+        </div>
     </nav>
 
-    <section class="relative py-20 px-6 text-center">
+    <!-- Hero -->
+    <section class="pt-40 pb-20 px-6 text-center">
+        <h1 class="text-6xl md:text-9xl font-black tracking-tighter mb-6 uppercase leading-none">The Land <br> <span class="text-lime-400 italic">Plug.</span></h1>
+        <p class="text-gray-400 max-w-xl mx-auto mb-10 font-medium">Verified titles. Zero drama. Gibeon Properties is the bridge between you and your future home.</p>
+        <a href="#visit" class="bg-white text-black px-10 py-4 rounded-full font-black uppercase text-sm hover:bg-lime-400 transition">Book Site Visit</a>
+    </section>
+
+    <!-- About Us Section -->
+    <section id="about" class="py-24 px-6 bg-zinc-900/50">
+        <div class="max-w-5xl mx-auto grid md:grid-cols-2 gap-12 items-center">
+            <div>
+                <h2 class="text-4xl font-black mb-6 uppercase italic">Our Story</h2>
+                <p class="text-gray-400 leading-relaxed mb-6">We started Gibeon Properties because we were tired of the "long stories" in Kenyan real estate. We believe land ownership should be as simple as a DM.</p>
+                <div class="grid grid-cols-2 gap-4">
+                    <div class="glass p-4 rounded-2xl">
+                        <span class="block text-2xl font-bold text-lime-400">100%</span>
+                        <span class="text-[10px] font-bold uppercase opacity-60">Transparency</span>
+                    </div>
+                    <div class="glass p-4 rounded-2xl">
+                        <span class="block text-2xl font-bold text-lime-400">Fixed</span>
+                        <span class="text-[10px] font-bold uppercase opacity-60">Legal Costs</span>
+                    </div>
+                </div>
+            </div>
+            <div class="rounded-[3rem] overflow-hidden rotate-2 border-4 border-lime-400/20">
+                <img src="https://images.unsplash.com/photo-1582407947304-fd86f028f716?q=80&w=1000" class="w-full h-96 object-cover">
+            </div>
+        </div>
+    </section>
+
+    <!-- Listings with Filter Tabs -->
+    <section id="listings" class="py-24 px-6 max-w-7xl mx-auto">
+        <div class="flex flex-col md:flex-row justify-between items-end mb-16 gap-6">
+            <h2 class="text-5xl font-black uppercase tracking-tighter">The Drops</h2>
+            <div class="flex gap-2 overflow-x-auto pb-2 w-full md:w-auto">
+                <button class="filter-btn active border border-white/20 px-6 py-2 rounded-full text-xs font-bold uppercase">All</button>
+                <button class="filter-btn border border-white/20 px-6 py-2 rounded-full text-xs font-bold uppercase">Joska</button>
+                <button class="filter-btn border border-white/20 px-6 py-2 rounded-full text-xs font-bold uppercase">Kitengela</button>
+                <button class="filter-btn border border-white/20 px-6 py-2 rounded-full text-xs font-bold uppercase">Malaa</button>
+            </div>
+        </div>
+
+        <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+            <!-- Plot Card -->
+            <div class="glass rounded-[2.5rem] overflow-hidden p-4 group hover:border-lime-400/40 transition">
+                <div class="rounded-[2rem] overflow-hidden h-64 mb-6">
+                    <img src="https://images.unsplash.com/photo-1500382017468-9049fed747ef?q=80&w=1000" class="w-full h-full object-cover">
+                </div>
+                <div class="px-2">
+                    <h3 class="text-2xl font-black mb-2 uppercase">Joska Heights</h3>
+                    <p class="text-gray-500 text-sm mb-4 italic">Electricity, water, 2km from tarmac.</p>
+                    <div class="flex justify-between items-center font-bold">
+                        <span class="text-lime-400">KSH 1.5M</span>
+                        <span class="text-[10px] opacity-40 uppercase">Instalments: 12 Mo.</span>
+                    </div>
+                    <div class="mt-6 flex gap-2">
+                        <a href="https://wa.me/254724389620" class="flex-1 bg-white text-black py-3 rounded-xl text-center font-black text-xs uppercase hover:bg-lime-400 transition">Secure</a>
+                        <a href="#" class="px-4 bg-zinc-800 py-3 rounded-xl text-center font-black text-xs uppercase">Map</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- FAQ Section -->
+    <section id="faq" class="py-24 px-6 max-w-3xl mx-auto">
+        <h2 class="text-4xl font-black mb-12 uppercase italic text-center">F.A.Q</h2>
+        <div class="space-y-4">
+            <details class="glass p-6 rounded-2xl cursor-pointer group">
+                <summary class="font-bold flex justify-between items-center">Can I get a title search before paying? <span class="group-open:rotate-45 transition">+</span></summary>
+                <p class="mt-4 text-gray-400 text-sm">Absolutely. We encourage all clients to verify the green card at the Ministry of Lands before making any commitments.</p>
+            </details>
+            <details class="glass p-6 rounded-2xl cursor-pointer group">
+                <summary class="font-bold flex justify-between items-center">Do you allow instalment payments? <span class="group-open:rotate-45 transition">+</span></summary>
+                <p class="mt-4 text-gray-400 text-sm">Yes. Pay a 20% deposit and clear the balance in 6 to 12 months.</p>
+            </details>
+        </div>
+    </section>
+
+    <!-- Site Visit Form -->
+    <section id="visit" class="py-24 px-6 bg-lime-400 text-black">
         <div class="max-w-4xl mx-auto">
-            <span class="bg-white/10 text-lime-400 border border-lime-400/30 px-4 py-1 rounded-full text-xs font-bold uppercase tracking-widest">
-                Real Estate, but make it easy
-            </span>
-            <h1 class="text-6xl md:text-8xl font-bold mt-6 mb-8 leading-tight">Secure the <span class="italic text-lime-400">Plot.</span></h1>
-            <p class="text-gray-400 text-lg md:text-xl max-w-2xl mx-auto mb-10">
-                Stop scrolling, start owning. Verified land in Nairobi's hottest zones. No stress, just titles.
-            </p>
-            <div class="flex flex-wrap justify-center gap-4">
-                <a href="#listings" class="bg-white text-black px-10 py-4 rounded-2xl font-bold text-lg hover:bg-lime-400 transition-colors">
-                    Browse Plots
-                </a>
-                <button onclick="toggleModal()" class="border border-white/20 px-10 py-4 rounded-2xl font-bold text-lg hover:bg-white/10 transition">
-                    Site Visit? Bet.
-                </button>
-            </div>
-        </div>
-    </section>
-
-    <section id="listings" class="py-20 px-6 max-w-7xl mx-auto">
-        <div class="flex justify-between items-end mb-12">
-            <h2 class="text-3xl font-bold">The Main Characters</h2>
-            <p class="text-lime-400 font-medium cursor-pointer hover:underline">View all →</p>
-        </div>
-
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            <div class="group bg-[#1a1a1a] rounded-3xl overflow-hidden border border-white/10 hover:border-lime-400/50 transition">
-                <div class="h-64 bg-gray-800 relative overflow-hidden">
-                    <img src="https://images.unsplash.com/photo-1500382017468-9049fed747ef?q=80&w=1000" class="w-full h-full object-cover group-hover:scale-110 transition duration-500">
-                    <div class="absolute top-4 left-4 bg-black/60 backdrop-blur-md px-3 py-1 rounded-full text-xs font-bold">KSH 1.2M</div>
-                </div>
-                <div class="p-6">
-                    <div class="flex gap-2 mb-3">
-                        <span class="text-[10px] bg-lime-400/20 text-lime-400 px-2 py-1 rounded-md uppercase font-bold tracking-tighter">Ready Title</span>
-                        <span class="text-[10px] bg-blue-400/20 text-blue-400 px-2 py-1 rounded-md uppercase font-bold tracking-tighter">50x100</span>
-                    </div>
-                    <h3 class="text-xl font-bold mb-2">The Sunset Ridge, Kitengela</h3>
-                    <p class="text-gray-500 text-sm mb-6">30 mins from CBD. Power & water sorted. Ready to build.</p>
-                    <a href="https://wa.me/254700000000?text=I'm%20interested%20in%20Sunset%20Ridge" 
-                       class="block text-center w-full py-3 rounded-xl bg-white/5 border border-white/10 font-bold hover:bg-lime-400 hover:text-black transition">
-                       I want this one
-                    </a>
-                </div>
-            </div>
-
-            <div class="group bg-[#1a1a1a] rounded-3xl overflow-hidden border border-white/10 hover:border-lime-400/50 transition">
-                <div class="h-64 bg-gray-800 relative overflow-hidden">
-                    <img src="https://images.unsplash.com/photo-1500382017468-9049fed747ef?q=80&w=1000&auto=format" class="w-full h-full object-cover group-hover:scale-110 transition duration-500 saturate-[0.5]">
-                    <div class="absolute top-4 left-4 bg-black/60 backdrop-blur-md px-3 py-1 rounded-full text-xs font-bold">KSH 850K</div>
-                </div>
-                <div class="p-6">
-                    <div class="flex gap-2 mb-3">
-                        <span class="text-[10px] bg-lime-400/20 text-lime-400 px-2 py-1 rounded-md uppercase font-bold tracking-tighter">New Drop</span>
-                        <span class="text-[10px] bg-blue-400/20 text-blue-400 px-2 py-1 rounded-md uppercase font-bold tracking-tighter">1/8th Acre</span>
-                    </div>
-                    <h3 class="text-xl font-bold mb-2">Green Valley, Joska</h3>
-                    <p class="text-gray-500 text-sm mb-6">Rapidly developing area. Perfect for a family home.</p>
-                    <a href="https://wa.me/254700000000?text=Tell%20me%20more%20about%20Green%20Valley" 
-                       class="block text-center w-full py-3 rounded-xl bg-white/5 border border-white/10 font-bold hover:bg-lime-400 hover:text-black transition">
-                       I want this one
-                    </a>
-                </div>
-            </div>
-
-            <div class="group bg-[#1a1a1a] rounded-3xl overflow-hidden border border-dashed border-white/10 flex items-center justify-center p-12">
-                <p class="text-gray-600 italic">More plots dropping soon...</p>
-            </div>
-        </div>
-    </section>
-
-    <div class="fixed bottom-8 right-8 z-50">
-        <a href="https://wa.me/254700000000" class="bg-[#25D366] p-4 rounded-2xl shadow-2xl flex items-center gap-3 hover:scale-110 transition">
-            <span class="font-bold text-black hidden md:block">Chat now</span>
-            <svg class="w-6 h-6 fill-black" viewBox="0 0 24 24"><path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.588-5.946 0-6.556 5.332-11.888 11.888-11.888 3.176 0 6.161 1.237 8.404 3.48s3.481 5.229 3.481 8.405c0 6.555-5.332 11.89-11.888 11.89-2.015 0-4.004-.51-5.787-1.478l-6.21 1.63zm6.303-4.062l.352.209c1.472.873 3.167 1.334 4.9 1.334 5.01 0 9.088-4.078 9.088-9.087 0-2.43-.945-4.713-2.661-6.43s-4-2.661-6.427-2.661c-5.01 0-9.088 4.079-9.088 9.089 0 1.764.509 3.488 1.473 5l.23.357-1.002 3.658 3.735-.98z"/></svg>
-        </a>
-    </div>
-
-    <div id="visitModal" class="fixed inset-0 bg-black/90 backdrop-blur-sm z-[60] hidden flex items-center justify-center p-4">
-        <div class="bg-[#1a1a1a] border border-white/10 p-8 rounded-3xl max-w-md w-full relative">
-            <button onclick="toggleModal()" class="absolute top-4 right-4 text-gray-400 hover:text-white">✕</button>
-            <h3 class="text-2xl font-bold mb-4 text-lime-400">Book a Site Visit</h3>
-            <p class="text-gray-400 mb-6">Drop your details and we'll hit you up to confirm the vibe.</p>
-            <form id="visitForm" class="space-y-4">
-                <input type="text" required placeholder="Your Name" class="w-full bg-white/5 border border-white/10 p-4 rounded-xl focus:border-lime-400 outline-none transition">
-                <input type="tel" required placeholder="Phone Number" class="w-full bg-white/5 border border-white/10 p-4 rounded-xl focus:border-lime-400 outline-none transition">
-                <button type="submit" class="w-full bg-lime-400 text-black font-bold py-4 rounded-xl hover:bg-lime-500 transition">Confirm "Bet"</button>
+            <h2 class="text-5xl md:text-7xl font-black mb-12 tracking-tighter uppercase text-center leading-none">See it. <br> Believe it.</h2>
+            <form class="grid md:grid-cols-2 gap-6 glass border-black/10 p-8 md:p-12 rounded-[3rem]">
+                <input type="text" placeholder="Your Name" class="bg-white/40 p-4 rounded-xl border border-black/10 outline-none placeholder:text-black/60 font-bold">
+                <input type="tel" placeholder="Phone Number" class="bg-white/40 p-4 rounded-xl border border-black/10 outline-none placeholder:text-black/60 font-bold">
+                <select class="bg-white/40 p-4 rounded-xl border border-black/10 outline-none font-bold">
+                    <option disabled selected>Select Plot of Interest</option>
+                    <option>Joska Heights</option>
+                    <option>Kitengela View</option>
+                    <option>Malaa Gardens</option>
+                </select>
+                <input type="date" class="bg-white/40 p-4 rounded-xl border border-black/10 outline-none font-bold">
+                <button class="md:col-span-2 bg-black text-white py-5 rounded-2xl font-black text-xl hover:scale-105 transition">CONFIRM "BET"</button>
             </form>
         </div>
-    </div>
+    </section>
+
+    <!-- Contact & Footer -->
+    <footer id="contact" class="py-20 px-6 border-t border-white/10">
+        <div class="max-w-7xl mx-auto grid md:grid-cols-3 gap-12">
+            <div>
+                <h3 class="font-black text-2xl mb-4 italic uppercase">Gibeon.</h3>
+                <p class="text-gray-500 text-sm">Turning land-seekers into land-owners since day one.</p>
+            </div>
+            <div>
+                <h4 class="font-bold text-[10px] uppercase tracking-widest mb-4">The Office</h4>
+                <p class="text-gray-400 text-sm">Nairobi, Kenya<br>Business Center, Suite 404</p>
+                <p class="mt-2 text-gray-400 text-sm">hello@gibeon.co.ke</p>
+            </div>
+            <div>
+                <h4 class="font-bold text-[10px] uppercase tracking-widest mb-4">Direct</h4>
+                <p class="text-gray-400 text-sm">+254 724 389 620</p>
+                <div class="flex gap-4 mt-4">
+                    <span class="text-xl">𝕏</span> <span class="text-xl">📷</span> <span class="text-xl">📱</span>
+                </div>
+            </div>
+        </div>
+    </footer>
 
     <script>
-        function toggleModal() {
-            const modal = document.getElementById('visitModal');
-            modal.classList.toggle('hidden');
-        }
-
-        // Close modal if user clicks outside of it
-        window.onclick = function(event) {
-            const modal = document.getElementById('visitModal');
-            if (event.target == modal) {
-                toggleModal();
-            }
-        }
-
-        // Handle Form Submit
-        document.getElementById('visitForm').onsubmit = function(e) {
-            e.preventDefault();
-            alert("Sent! We'll call you shortly to confirm your visit.");
-            toggleModal();
+        function toggleMenu() {
+            document.getElementById('mobileMenu').classList.toggle('hidden');
         }
     </script>
 </body>
