@@ -5,198 +5,796 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Gibeon Properties | Secure The Plot</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;500;700;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;500;700;900&family=Syne:wght@700;800;900&display=swap" rel="stylesheet">
     <style>
-        body { font-family: 'Space Grotesk', sans-serif; background-color: #050505; color: white; scroll-behavior: smooth; }
-        .glass { background: rgba(255, 255, 255, 0.03); backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.08); }
-        .filter-btn.active { background-color: #a3e635; color: black; border-color: #a3e635; }
+        :root {
+            --lime: #a3e635;
+            --lime-dark: #84cc16;
+        }
+
+        * { box-sizing: border-box; }
+        html { scroll-behavior: smooth; }
+
+        body {
+            font-family: 'Space Grotesk', sans-serif;
+            background-color: #050505;
+            color: white;
+            overflow-x: hidden;
+        }
+
+        h1, h2, h3, .font-display { font-family: 'Syne', sans-serif; }
+
+        /* Image fallback for broken URLs during demo */
+        img { background: linear-gradient(135deg, #1a1a1a 0%, #2a2a2a 50%, #1a1a1a 100%); }
+        img::after {
+            content: attr(alt);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(135deg, #1c2a0d 0%, #2d4a14 100%);
+            color: #a3e635;
+            font-size: 11px;
+            font-weight: 900;
+            text-transform: uppercase;
+            letter-spacing: .1em;
+        }
+
+        .glass {
+            background: rgba(255,255,255,0.03);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255,255,255,0.08);
+        }
+
+        /* Filter */
+        .filter-btn { transition: all 0.2s ease; }
+        .filter-btn.active { background-color: var(--lime); color: black; border-color: var(--lime); }
+
+        /* Plot card filtering */
+        .plot-card { transition: opacity 0.3s, transform 0.3s; }
+        .plot-card.hidden-card { opacity: 0; pointer-events: none; height: 0; overflow: hidden; padding: 0; margin: 0; }
+
+        /* Scroll reveal */
+        .reveal {
+            opacity: 0;
+            transform: translateY(32px);
+            transition: opacity 0.7s cubic-bezier(.22,1,.36,1), transform 0.7s cubic-bezier(.22,1,.36,1);
+        }
+        .reveal.visible { opacity: 1; transform: translateY(0); }
+
+        .reveal-delay-1 { transition-delay: 0.1s; }
+        .reveal-delay-2 { transition-delay: 0.2s; }
+        .reveal-delay-3 { transition-delay: 0.3s; }
+        .reveal-delay-4 { transition-delay: 0.4s; }
+
+        /* Ticker */
+        @keyframes ticker {
+            0% { transform: translateX(0); }
+            100% { transform: translateX(-50%); }
+        }
+        .ticker-inner { display: flex; animation: ticker 24s linear infinite; white-space: nowrap; width: max-content; }
+
+        /* Marquee pause on hover */
+        .ticker-wrapper:hover .ticker-inner { animation-play-state: paused; }
+
+        /* Hero grain overlay */
+        .grain::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        /* FAQ details arrow */
+        details summary::-webkit-details-marker { display: none; }
+        details[open] summary .faq-icon { transform: rotate(45deg); }
+        .faq-icon { transition: transform 0.3s; }
+
+        /* WhatsApp btn pulse */
+        @keyframes pulse-ring {
+            0% { box-shadow: 0 0 0 0 rgba(37,211,102,0.5); }
+            70% { box-shadow: 0 0 0 14px rgba(37,211,102,0); }
+            100% { box-shadow: 0 0 0 0 rgba(37,211,102,0); }
+        }
+        .wa-btn { animation: pulse-ring 2s infinite; }
+
+        /* Hover card lift */
+        .plot-card:hover { transform: translateY(-6px); }
+        .plot-card { transition: transform 0.3s cubic-bezier(.22,1,.36,1), border-color 0.3s; }
+
+        /* Badge */
+        .badge-hot { background: #ef4444; color: white; font-size: 9px; font-weight: 900; padding: 2px 8px; border-radius: 99px; letter-spacing: .08em; text-transform: uppercase; }
+        .badge-available { background: var(--lime); color: black; font-size: 9px; font-weight: 900; padding: 2px 8px; border-radius: 99px; letter-spacing: .08em; text-transform: uppercase; }
+        .badge-few { background: #f97316; color: black; font-size: 9px; font-weight: 900; padding: 2px 8px; border-radius: 99px; letter-spacing: .08em; text-transform: uppercase; }
+
+        /* Progress bar */
+        .progress-track { height: 4px; background: rgba(255,255,255,0.1); border-radius: 99px; overflow: hidden; }
+        .progress-fill { height: 100%; background: var(--lime); border-radius: 99px; transition: width 1.2s cubic-bezier(.22,1,.36,1); width: 0; }
+
+        /* Number counter */
+        .count-num { font-variant-numeric: tabular-nums; }
     </style>
 </head>
-<!-- Floating WhatsApp Button (Fixed for Gibeon Properties) -->
-    <a href="https://wa.me/254724389620?text=Yo!%20I'm%20on%20the%20Gibeon%20website%20and%20want%20to%20secure%20a%20plot." 
-       target="_blank" 
-       class="fixed bottom-8 right-8 z-[150] bg-[#25D366] p-5 rounded-full shadow-2xl hover:scale-110 active:scale-95 transition-all flex items-center justify-center border-4 border-black">
-        <svg class="w-8 h-8 fill-black" viewBox="0 0 24 24">
-            <path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.588-5.946 0-6.556 5.332-11.888 11.888-11.888 3.176 0 6.161 1.237 8.404 3.48s3.481 5.229 3.481 8.405c0 6.555-5.332 11.89-11.888 11.89-2.015 0-4.004-.51-5.787-1.478l-6.21 1.63zm6.303-4.062l.352.209c1.472.873 3.167 1.334 4.9 1.334 5.01 0 9.088-4.078 9.088-9.087 0-2.43-.945-4.713-2.661-6.43s-4-2.661-6.427-2.661c-5.01 0-9.088 4.079-9.088 9.089 0 1.764.509 3.488 1.473 5l.23.357-1.002 3.658 3.735-.98z"/>
-        </svg>
-    </a>
-
-    <!-- Updated Script for Menu & Success Messages -->
-    <script>
-        // Toggle Mobile Menu
-        function toggleMenu() {
-            const menu = document.getElementById('mobileMenu');
-            menu.classList.toggle('hidden');
-        }
-
-        // Handle Filter Button Clicks (Visual Only)
-        const filterBtns = document.querySelectorAll('.filter-btn');
-        filterBtns.forEach(btn => {
-            btn.addEventListener('click', () => {
-                filterBtns.forEach(b => b.classList.remove('active'));
-                btn.classList.add('active');
-            });
-        });
-
-        // Form Submission Catch (Efficient & Fun)
-        document.querySelector('#visit form').onsubmit = (e) => {
-            e.preventDefault();
-            alert("Bet! Your site visit is confirmed. We'll hit you up on WhatsApp to fix the time.");
-        };
-    </script>
 <body>
 
-    <!-- Nav with Mobile Menu -->
-    <nav class="fixed top-0 w-full z-[100] glass px-6 py-4">
-        <div class="max-w-7xl mx-auto flex justify-between items-center">
-            <div class="text-2xl font-black tracking-tighter">GIBEON.</div>
-            
-            <!-- Desktop Links -->
-            <div class="hidden md:flex gap-8 text-[10px] font-bold uppercase tracking-widest">
-                <a href="#about" class="hover:text-lime-400 transition">About</a>
-                <a href="#listings" class="hover:text-lime-400 transition">Listings</a>
-                <a href="#faq" class="hover:text-lime-400 transition">FAQ</a>
-                <a href="#contact" class="hover:text-lime-400 transition">Contact</a>
+<!-- ══════════════════════ FLOATING WHATSAPP ══════════════════════ -->
+<a href="https://wa.me/254724389620?text=Yo!%20I'm%20on%20the%20Gibeon%20website%20and%20want%20to%20secure%20a%20plot."
+   target="_blank"
+   class="wa-btn fixed bottom-8 right-8 z-[150] bg-[#25D366] p-4 rounded-full shadow-2xl hover:scale-110 active:scale-95 transition-all flex items-center justify-center border-4 border-black">
+    <svg class="w-7 h-7 fill-black" viewBox="0 0 24 24">
+        <path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.588-5.946 0-6.556 5.332-11.888 11.888-11.888 3.176 0 6.161 1.237 8.404 3.48s3.481 5.229 3.481 8.405c0 6.555-5.332 11.89-11.888 11.89-2.015 0-4.004-.51-5.787-1.478l-6.21 1.63zm6.303-4.062l.352.209c1.472.873 3.167 1.334 4.9 1.334 5.01 0 9.088-4.078 9.088-9.087 0-2.43-.945-4.713-2.661-6.43s-4-2.661-6.427-2.661c-5.01 0-9.088 4.079-9.088 9.089 0 1.764.509 3.488 1.473 5l.23.357-1.002 3.658 3.735-.98z"/>
+    </svg>
+</a>
+
+<!-- ══════════════════════ NAV ══════════════════════ -->
+<nav class="fixed top-0 w-full z-[100] glass px-6 py-4">
+    <div class="max-w-7xl mx-auto flex justify-between items-center">
+        <div class="text-2xl font-black tracking-tighter" style="font-family:'Syne',sans-serif;">GIBEON.</div>
+
+        <!-- Desktop Links -->
+        <div class="hidden md:flex gap-8 text-[10px] font-bold uppercase tracking-widest">
+            <a href="#about" class="hover:text-lime-400 transition">About</a>
+            <a href="#listings" class="hover:text-lime-400 transition">Listings</a>
+            <a href="#testimonials" class="hover:text-lime-400 transition">Reviews</a>
+            <a href="#faq" class="hover:text-lime-400 transition">FAQ</a>
+            <a href="#contact" class="hover:text-lime-400 transition">Contact</a>
+        </div>
+
+        <a href="#visit" class="hidden md:block bg-lime-400 text-black px-6 py-2 rounded-full font-black text-xs uppercase hover:bg-white transition">Book Visit →</a>
+
+        <!-- Mobile Toggle -->
+        <button id="menuToggle" class="md:hidden text-2xl" aria-label="Toggle menu">☰</button>
+    </div>
+
+    <!-- Mobile Menu Overlay -->
+    <div id="mobileMenu" class="hidden fixed inset-0 bg-black/95 backdrop-blur-lg flex flex-col items-center justify-center gap-8 text-3xl font-black uppercase z-[200]" style="font-family:'Syne',sans-serif;">
+        <button id="menuClose" class="absolute top-6 right-6 text-xl">✕</button>
+        <a href="#about" class="mobile-link hover:text-lime-400 transition">About</a>
+        <a href="#listings" class="mobile-link hover:text-lime-400 transition">Listings</a>
+        <a href="#testimonials" class="mobile-link hover:text-lime-400 transition">Reviews</a>
+        <a href="#faq" class="mobile-link hover:text-lime-400 transition">FAQ</a>
+        <a href="#contact" class="mobile-link hover:text-lime-400 transition">Contact</a>
+        <a href="#visit" class="mobile-link mt-4 bg-lime-400 text-black px-8 py-4 rounded-full text-base">Book Site Visit →</a>
+    </div>
+</nav>
+
+<!-- ══════════════════════ HERO ══════════════════════ -->
+<section class="relative grain pt-40 pb-20 px-6 text-center min-h-screen flex flex-col items-center justify-center overflow-hidden">
+    <!-- Ambient glow -->
+    <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] rounded-full opacity-10 pointer-events-none" style="background: radial-gradient(circle, #a3e635 0%, transparent 70%);"></div>
+
+    <div class="relative z-10">
+        <div class="inline-block glass px-4 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest text-lime-400 mb-8 reveal">
+            🔥 Nairobi's Fastest-Moving Plots
+        </div>
+        <h1 class="text-6xl md:text-[10rem] font-black tracking-tighter mb-6 uppercase leading-[0.9] reveal reveal-delay-1">
+            The Land<br><span class="text-lime-400 italic">Plug.</span>
+        </h1>
+        <p class="text-gray-400 max-w-xl mx-auto mb-10 font-medium text-lg reveal reveal-delay-2">Verified titles. Zero drama. Gibeon Properties is the bridge between you and your future home.</p>
+        <div class="flex flex-col sm:flex-row gap-4 justify-center reveal reveal-delay-3">
+            <a href="#visit" class="bg-lime-400 text-black px-10 py-4 rounded-full font-black uppercase text-sm hover:bg-white transition">Book Site Visit →</a>
+            <a href="#listings" class="glass px-10 py-4 rounded-full font-black uppercase text-sm hover:border-lime-400/50 transition">See Listings</a>
+        </div>
+
+        <!-- Mini stats -->
+        <div class="mt-20 grid grid-cols-3 gap-4 max-w-md mx-auto reveal reveal-delay-4">
+            <div class="glass p-4 rounded-2xl text-center">
+                <span class="block text-3xl font-black text-lime-400 count-num" data-target="200">0</span>
+                <span class="text-[9px] font-bold uppercase opacity-50 tracking-widest">Plots Sold</span>
             </div>
-
-            <!-- Mobile Toggle -->
-            <button onclick="toggleMenu()" class="md:hidden text-2xl">☰</button>
+            <div class="glass p-4 rounded-2xl text-center">
+                <span class="block text-3xl font-black text-lime-400 count-num" data-target="6">0</span>
+                <span class="text-[9px] font-bold uppercase opacity-50 tracking-widest">Locations</span>
+            </div>
+            <div class="glass p-4 rounded-2xl text-center">
+                <span class="block text-3xl font-black text-lime-400">5★</span>
+                <span class="text-[9px] font-bold uppercase opacity-50 tracking-widest">Rating</span>
+            </div>
         </div>
+    </div>
 
-        <!-- Mobile Menu Overlay -->
-        <div id="mobileMenu" class="hidden fixed inset-0 bg-black flex flex-col items-center justify-center gap-8 text-3xl font-black uppercase">
-            <button onclick="toggleMenu()" class="absolute top-6 right-6 text-xl">✕</button>
-            <a href="#about" onclick="toggleMenu()">About</a>
-            <a href="#listings" onclick="toggleMenu()">Listings</a>
-            <a href="#faq" onclick="toggleMenu()">FAQ</a>
-            <a href="#contact" onclick="toggleMenu()">Contact</a>
+    <!-- Scroll cue -->
+    <div class="absolute bottom-10 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 opacity-40">
+        <span class="text-[10px] uppercase tracking-widest">Scroll</span>
+        <div class="w-px h-12 bg-white/30 relative overflow-hidden">
+            <div class="absolute top-0 w-full h-4 bg-lime-400" style="animation: scrollDown 1.5s ease-in-out infinite;">
+            </div>
         </div>
-    </nav>
+    </div>
+</section>
 
-    <!-- Hero -->
-    <section class="pt-40 pb-20 px-6 text-center">
-        <h1 class="text-6xl md:text-9xl font-black tracking-tighter mb-6 uppercase leading-none">The Land <br> <span class="text-lime-400 italic">Plug.</span></h1>
-        <p class="text-gray-400 max-w-xl mx-auto mb-10 font-medium">Verified titles. Zero drama. Gibeon Properties is the bridge between you and your future home.</p>
-        <a href="#visit" class="bg-white text-black px-10 py-4 rounded-full font-black uppercase text-sm hover:bg-lime-400 transition">Book Site Visit</a>
-    </section>
+<style>
+@keyframes scrollDown {
+    0% { top: -20px; }
+    100% { top: 100%; }
+}
+</style>
 
-    <!-- About Us Section -->
-    <section id="about" class="py-24 px-6 bg-zinc-900/50">
-        <div class="max-w-5xl mx-auto grid md:grid-cols-2 gap-12 items-center">
-            <div>
-                <h2 class="text-4xl font-black mb-6 uppercase italic">Our Story</h2>
-                <p class="text-gray-400 leading-relaxed mb-6">We started Gibeon Properties because we were tired of the "long stories" in Kenyan real estate. We believe land ownership should be as simple as a DM.</p>
-                <div class="grid grid-cols-2 gap-4">
-                    <div class="glass p-4 rounded-2xl">
-                        <span class="block text-2xl font-bold text-lime-400">100%</span>
-                        <span class="text-[10px] font-bold uppercase opacity-60">Transparency</span>
+<!-- ══════════════════════ TRUST TICKER ══════════════════════ -->
+<div class="ticker-wrapper py-5 border-y border-white/10 overflow-hidden bg-zinc-950">
+    <div class="ticker-inner text-[11px] font-bold uppercase tracking-widest opacity-40">
+        <span class="px-8">✓ Title Deed Verified</span>
+        <span class="px-8">✓ Clean Ownership History</span>
+        <span class="px-8">✓ Free Legal Advisory</span>
+        <span class="px-8">✓ Flexible Instalments</span>
+        <span class="px-8">✓ Site Visit Any Day</span>
+        <span class="px-8">✓ No Hidden Fees</span>
+        <span class="px-8">✓ Government Approvals</span>
+        <span class="px-8">✓ Direct From Owner</span>
+        <!-- duplicate for seamless loop -->
+        <span class="px-8">✓ Title Deed Verified</span>
+        <span class="px-8">✓ Clean Ownership History</span>
+        <span class="px-8">✓ Free Legal Advisory</span>
+        <span class="px-8">✓ Flexible Instalments</span>
+        <span class="px-8">✓ Site Visit Any Day</span>
+        <span class="px-8">✓ No Hidden Fees</span>
+        <span class="px-8">✓ Government Approvals</span>
+        <span class="px-8">✓ Direct From Owner</span>
+    </div>
+</div>
+
+<!-- ══════════════════════ ABOUT ══════════════════════ -->
+<section id="about" class="py-24 px-6 bg-zinc-900/50">
+    <div class="max-w-5xl mx-auto grid md:grid-cols-2 gap-12 items-center">
+        <div class="reveal">
+            <span class="text-[10px] uppercase tracking-widest text-lime-400 font-bold">Who We Are</span>
+            <h2 class="text-4xl md:text-5xl font-black mb-6 uppercase italic mt-3">Our Story</h2>
+            <p class="text-gray-400 leading-relaxed mb-6">We started Gibeon Properties because we were tired of the "long stories" in Kenyan real estate — the fake titles, the crooked agents, the surprise costs. We believe land ownership should be as simple as a DM.</p>
+            <p class="text-gray-400 leading-relaxed mb-8">Every plot we list has been verified, walked, and researched. Our legal team handles the paperwork. Your job is just to show up and choose.</p>
+            <div class="grid grid-cols-2 gap-4">
+                <div class="glass p-5 rounded-2xl">
+                    <span class="block text-3xl font-black text-lime-400">100%</span>
+                    <span class="text-[10px] font-bold uppercase opacity-60 mt-1 block">Transparency</span>
+                </div>
+                <div class="glass p-5 rounded-2xl">
+                    <span class="block text-3xl font-black text-lime-400">Fixed</span>
+                    <span class="text-[10px] font-bold uppercase opacity-60 mt-1 block">Legal Costs</span>
+                </div>
+                <div class="glass p-5 rounded-2xl">
+                    <span class="block text-3xl font-black text-lime-400">3 Days</span>
+                    <span class="text-[10px] font-bold uppercase opacity-60 mt-1 block">Title Transfer</span>
+                </div>
+                <div class="glass p-5 rounded-2xl">
+                    <span class="block text-3xl font-black text-lime-400">0 KES</span>
+                    <span class="text-[10px] font-bold uppercase opacity-60 mt-1 block">Hidden Fees</span>
+                </div>
+            </div>
+        </div>
+        <div class="rounded-[3rem] overflow-hidden rotate-2 border-4 border-lime-400/20 reveal reveal-delay-2">
+            <img src="https://images.unsplash.com/photo-1580674684081-7617fbf3d745?w=1000&q=80&fit=crop" class="w-full h-96 object-cover" alt="Land photo">
+        </div>
+    </div>
+</section>
+
+<!-- ══════════════════════ HOW IT WORKS ══════════════════════ -->
+<section class="py-24 px-6 max-w-5xl mx-auto">
+    <div class="text-center mb-16 reveal">
+        <span class="text-[10px] uppercase tracking-widest text-lime-400 font-bold">The Process</span>
+        <h2 class="text-4xl md:text-5xl font-black uppercase mt-3">As Easy As 1-2-3</h2>
+    </div>
+    <div class="grid md:grid-cols-3 gap-8">
+        <div class="glass p-8 rounded-[2rem] reveal reveal-delay-1 hover:border-lime-400/30 transition">
+            <div class="text-5xl font-black text-lime-400 mb-6">01</div>
+            <h3 class="text-xl font-black uppercase mb-3">Choose Your Plot</h3>
+            <p class="text-gray-400 text-sm leading-relaxed">Browse our verified listings. Filter by location, size, and price. Every plot shows real photos and a map link.</p>
+        </div>
+        <div class="glass p-8 rounded-[2rem] reveal reveal-delay-2 hover:border-lime-400/30 transition">
+            <div class="text-5xl font-black text-lime-400 mb-6">02</div>
+            <h3 class="text-xl font-black uppercase mb-3">Book a Site Visit</h3>
+            <p class="text-gray-400 text-sm leading-relaxed">Come see it in person. We'll pick you up or meet you there. No pressure, no rush — just vibes and land.</p>
+        </div>
+        <div class="glass p-8 rounded-[2rem] reveal reveal-delay-3 hover:border-lime-400/30 transition">
+            <div class="text-5xl font-black text-lime-400 mb-6">03</div>
+            <h3 class="text-xl font-black uppercase mb-3">Secure & Transfer</h3>
+            <p class="text-gray-400 text-sm leading-relaxed">Pay your deposit, sign the agreement, and our legal team fast-tracks your title deed. Plot is yours in 3 days.</p>
+        </div>
+    </div>
+</section>
+
+<!-- ══════════════════════ LISTINGS ══════════════════════ -->
+<section id="listings" class="py-24 px-6 max-w-7xl mx-auto">
+    <div class="flex flex-col md:flex-row justify-between items-end mb-16 gap-6">
+        <div class="reveal">
+            <span class="text-[10px] uppercase tracking-widest text-lime-400 font-bold">Available Now</span>
+            <h2 class="text-5xl font-black uppercase tracking-tighter mt-2">The Drops</h2>
+        </div>
+        <div class="flex gap-2 overflow-x-auto pb-2 w-full md:w-auto reveal">
+            <button class="filter-btn active border border-white/20 px-6 py-2 rounded-full text-xs font-bold uppercase whitespace-nowrap" data-filter="all">All</button>
+            <button class="filter-btn border border-white/20 px-6 py-2 rounded-full text-xs font-bold uppercase whitespace-nowrap" data-filter="joska">Joska</button>
+            <button class="filter-btn border border-white/20 px-6 py-2 rounded-full text-xs font-bold uppercase whitespace-nowrap" data-filter="kitengela">Kitengela</button>
+            <button class="filter-btn border border-white/20 px-6 py-2 rounded-full text-xs font-bold uppercase whitespace-nowrap" data-filter="malaa">Malaa</button>
+        </div>
+    </div>
+
+    <div id="plotGrid" class="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+
+        <!-- Joska Heights -->
+        <div class="plot-card glass rounded-[2.5rem] overflow-hidden p-4 hover:border-lime-400/40 reveal reveal-delay-1" data-location="joska">
+            <div class="rounded-[2rem] overflow-hidden h-64 mb-6 relative">
+                <img src="https://images.unsplash.com/photo-1500382017468-9049fed747ef?w=900&q=80&fit=crop&crop=center" class="w-full h-full object-cover" alt="Joska Heights">
+                <div class="absolute top-4 left-4 flex gap-2">
+                    <span class="badge-hot">🔥 Hot</span>
+                </div>
+            </div>
+            <div class="px-2">
+                <div class="flex justify-between items-start mb-1">
+                    <h3 class="text-2xl font-black uppercase">Joska Heights</h3>
+                    <span class="badge-available mt-1">Available</span>
+                </div>
+                <p class="text-gray-500 text-sm mb-3 italic">📍 Joska, Machakos County</p>
+                <div class="flex gap-3 text-xs text-gray-400 mb-4">
+                    <span>⚡ Electricity</span><span>💧 Water</span><span>🛣 2km tarmac</span>
+                </div>
+                <!-- Availability bar -->
+                <div class="mb-4">
+                    <div class="flex justify-between text-[10px] font-bold uppercase opacity-50 mb-1">
+                        <span>Plots Available</span><span>8 / 20</span>
                     </div>
-                    <div class="glass p-4 rounded-2xl">
-                        <span class="block text-2xl font-bold text-lime-400">Fixed</span>
-                        <span class="text-[10px] font-bold uppercase opacity-60">Legal Costs</span>
+                    <div class="progress-track"><div class="progress-fill" style="--target-width: 60%"></div></div>
+                </div>
+                <div class="flex justify-between items-center font-bold">
+                    <span class="text-lime-400 text-xl">KSH 1.5M</span>
+                    <span class="text-[10px] opacity-40 uppercase">Instalments: 12 Mo.</span>
+                </div>
+                <div class="mt-4 flex gap-2">
+                    <a href="https://wa.me/254724389620?text=I'm%20interested%20in%20Joska%20Heights." target="_blank" class="flex-1 bg-white text-black py-3 rounded-xl text-center font-black text-xs uppercase hover:bg-lime-400 transition">Secure</a>
+                    <a href="https://maps.google.com" target="_blank" class="px-4 bg-zinc-800 py-3 rounded-xl text-center font-black text-xs uppercase hover:bg-zinc-700 transition">Map</a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Kitengela View -->
+        <div class="plot-card glass rounded-[2.5rem] overflow-hidden p-4 hover:border-lime-400/40 reveal reveal-delay-2" data-location="kitengela">
+            <div class="rounded-[2rem] overflow-hidden h-64 mb-6 relative">
+                <img src="https://images.unsplash.com/photo-1592982537447-7440770cbfc9?w=900&q=80&fit=crop&crop=center" class="w-full h-full object-cover" alt="Kitengela View">
+                <div class="absolute top-4 left-4">
+                    <span class="badge-few">Few Left</span>
+                </div>
+            </div>
+            <div class="px-2">
+                <div class="flex justify-between items-start mb-1">
+                    <h3 class="text-2xl font-black uppercase">Kitengela View</h3>
+                    <span class="badge-few mt-1">3 Left</span>
+                </div>
+                <p class="text-gray-500 text-sm mb-3 italic">📍 Kitengela, Kajiado County</p>
+                <div class="flex gap-3 text-xs text-gray-400 mb-4">
+                    <span>⚡ Power</span><span>🛣 On Tarmac</span><span>🏫 Near Schools</span>
+                </div>
+                <div class="mb-4">
+                    <div class="flex justify-between text-[10px] font-bold uppercase opacity-50 mb-1">
+                        <span>Plots Available</span><span>3 / 15</span>
+                    </div>
+                    <div class="progress-track"><div class="progress-fill" style="--target-width: 80%"></div></div>
+                </div>
+                <div class="flex justify-between items-center font-bold">
+                    <span class="text-lime-400 text-xl">KSH 2.2M</span>
+                    <span class="text-[10px] opacity-40 uppercase">Instalments: 6 Mo.</span>
+                </div>
+                <div class="mt-4 flex gap-2">
+                    <a href="https://wa.me/254724389620?text=I'm%20interested%20in%20Kitengela%20View." target="_blank" class="flex-1 bg-white text-black py-3 rounded-xl text-center font-black text-xs uppercase hover:bg-lime-400 transition">Secure</a>
+                    <a href="https://maps.google.com" target="_blank" class="px-4 bg-zinc-800 py-3 rounded-xl text-center font-black text-xs uppercase hover:bg-zinc-700 transition">Map</a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Malaa Gardens -->
+        <div class="plot-card glass rounded-[2.5rem] overflow-hidden p-4 hover:border-lime-400/40 reveal reveal-delay-3" data-location="malaa">
+            <div class="rounded-[2rem] overflow-hidden h-64 mb-6 relative">
+                <img src="https://images.unsplash.com/photo-1628744448840-55bdb2497bd4?w=900&q=80&fit=crop&crop=center" class="w-full h-full object-cover" alt="Malaa Gardens">
+                <div class="absolute top-4 left-4">
+                    <span class="badge-available">New Drop</span>
+                </div>
+            </div>
+            <div class="px-2">
+                <div class="flex justify-between items-start mb-1">
+                    <h3 class="text-2xl font-black uppercase">Malaa Gardens</h3>
+                    <span class="badge-available mt-1">Available</span>
+                </div>
+                <p class="text-gray-500 text-sm mb-3 italic">📍 Malaa, Machakos County</p>
+                <div class="flex gap-3 text-xs text-gray-400 mb-4">
+                    <span>💧 Borehole</span><span>🌿 Gated</span><span>🏗 Serviced</span>
+                </div>
+                <div class="mb-4">
+                    <div class="flex justify-between text-[10px] font-bold uppercase opacity-50 mb-1">
+                        <span>Plots Available</span><span>12 / 25</span>
+                    </div>
+                    <div class="progress-track"><div class="progress-fill" style="--target-width: 52%"></div></div>
+                </div>
+                <div class="flex justify-between items-center font-bold">
+                    <span class="text-lime-400 text-xl">KSH 980K</span>
+                    <span class="text-[10px] opacity-40 uppercase">Instalments: 12 Mo.</span>
+                </div>
+                <div class="mt-4 flex gap-2">
+                    <a href="https://wa.me/254724389620?text=I'm%20interested%20in%20Malaa%20Gardens." target="_blank" class="flex-1 bg-white text-black py-3 rounded-xl text-center font-black text-xs uppercase hover:bg-lime-400 transition">Secure</a>
+                    <a href="https://maps.google.com" target="_blank" class="px-4 bg-zinc-800 py-3 rounded-xl text-center font-black text-xs uppercase hover:bg-zinc-700 transition">Map</a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Joska East (bonus) -->
+        <div class="plot-card glass rounded-[2.5rem] overflow-hidden p-4 hover:border-lime-400/40 reveal reveal-delay-1" data-location="joska">
+            <div class="rounded-[2rem] overflow-hidden h-64 mb-6 relative">
+                <img src="https://images.unsplash.com/photo-1504691342899-4d92b50853e1?w=900&q=80&fit=crop&crop=center" class="w-full h-full object-cover" alt="Joska East">
+                <div class="absolute top-4 left-4">
+                    <span class="badge-available">New</span>
+                </div>
+            </div>
+            <div class="px-2">
+                <div class="flex justify-between items-start mb-1">
+                    <h3 class="text-2xl font-black uppercase">Joska East</h3>
+                    <span class="badge-available mt-1">Available</span>
+                </div>
+                <p class="text-gray-500 text-sm mb-3 italic">📍 Joska East, Machakos County</p>
+                <div class="flex gap-3 text-xs text-gray-400 mb-4">
+                    <span>⚡ Electricity</span><span>🏘 Community</span><span>🚌 Matatu Route</span>
+                </div>
+                <div class="mb-4">
+                    <div class="flex justify-between text-[10px] font-bold uppercase opacity-50 mb-1">
+                        <span>Plots Available</span><span>15 / 18</span>
+                    </div>
+                    <div class="progress-track"><div class="progress-fill" style="--target-width: 17%"></div></div>
+                </div>
+                <div class="flex justify-between items-center font-bold">
+                    <span class="text-lime-400 text-xl">KSH 1.2M</span>
+                    <span class="text-[10px] opacity-40 uppercase">Instalments: 12 Mo.</span>
+                </div>
+                <div class="mt-4 flex gap-2">
+                    <a href="https://wa.me/254724389620?text=I'm%20interested%20in%20Joska%20East." target="_blank" class="flex-1 bg-white text-black py-3 rounded-xl text-center font-black text-xs uppercase hover:bg-lime-400 transition">Secure</a>
+                    <a href="https://maps.google.com" target="_blank" class="px-4 bg-zinc-800 py-3 rounded-xl text-center font-black text-xs uppercase hover:bg-zinc-700 transition">Map</a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Kitengela South -->
+        <div class="plot-card glass rounded-[2.5rem] overflow-hidden p-4 hover:border-lime-400/40 reveal reveal-delay-2" data-location="kitengela">
+            <div class="rounded-[2rem] overflow-hidden h-64 mb-6 relative">
+                <img src="https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=900&q=80&fit=crop&crop=center" class="w-full h-full object-cover" alt="Kitengela South">
+            </div>
+            <div class="px-2">
+                <div class="flex justify-between items-start mb-1">
+                    <h3 class="text-2xl font-black uppercase">Kitengela South</h3>
+                    <span class="badge-available mt-1">Available</span>
+                </div>
+                <p class="text-gray-500 text-sm mb-3 italic">📍 Kitengela South, Kajiado</p>
+                <div class="flex gap-3 text-xs text-gray-400 mb-4">
+                    <span>⚡ Power</span><span>🏗 Serviced</span><span>🌅 Great Views</span>
+                </div>
+                <div class="mb-4">
+                    <div class="flex justify-between text-[10px] font-bold uppercase opacity-50 mb-1">
+                        <span>Plots Available</span><span>10 / 20</span>
+                    </div>
+                    <div class="progress-track"><div class="progress-fill" style="--target-width: 50%"></div></div>
+                </div>
+                <div class="flex justify-between items-center font-bold">
+                    <span class="text-lime-400 text-xl">KSH 1.8M</span>
+                    <span class="text-[10px] opacity-40 uppercase">Instalments: 9 Mo.</span>
+                </div>
+                <div class="mt-4 flex gap-2">
+                    <a href="https://wa.me/254724389620?text=I'm%20interested%20in%20Kitengela%20South." target="_blank" class="flex-1 bg-white text-black py-3 rounded-xl text-center font-black text-xs uppercase hover:bg-lime-400 transition">Secure</a>
+                    <a href="https://maps.google.com" target="_blank" class="px-4 bg-zinc-800 py-3 rounded-xl text-center font-black text-xs uppercase hover:bg-zinc-700 transition">Map</a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Malaa Prime -->
+        <div class="plot-card glass rounded-[2.5rem] overflow-hidden p-4 hover:border-lime-400/40 reveal reveal-delay-3" data-location="malaa">
+            <div class="rounded-[2rem] overflow-hidden h-64 mb-6 relative">
+                <img src="https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=900&q=80&fit=crop&crop=center" class="w-full h-full object-cover" alt="Malaa Prime">
+                <div class="absolute top-4 left-4">
+                    <span class="badge-hot">🔥 Best Value</span>
+                </div>
+            </div>
+            <div class="px-2">
+                <div class="flex justify-between items-start mb-1">
+                    <h3 class="text-2xl font-black uppercase">Malaa Prime</h3>
+                    <span class="badge-available mt-1">Available</span>
+                </div>
+                <p class="text-gray-500 text-sm mb-3 italic">📍 Malaa, Machakos County</p>
+                <div class="flex gap-3 text-xs text-gray-400 mb-4">
+                    <span>⚡ Power</span><span>💧 Water</span><span>🔐 Gated</span>
+                </div>
+                <div class="mb-4">
+                    <div class="flex justify-between text-[10px] font-bold uppercase opacity-50 mb-1">
+                        <span>Plots Available</span><span>7 / 20</span>
+                    </div>
+                    <div class="progress-track"><div class="progress-fill" style="--target-width: 65%"></div></div>
+                </div>
+                <div class="flex justify-between items-center font-bold">
+                    <span class="text-lime-400 text-xl">KSH 850K</span>
+                    <span class="text-[10px] opacity-40 uppercase">Instalments: 12 Mo.</span>
+                </div>
+                <div class="mt-4 flex gap-2">
+                    <a href="https://wa.me/254724389620?text=I'm%20interested%20in%20Malaa%20Prime." target="_blank" class="flex-1 bg-white text-black py-3 rounded-xl text-center font-black text-xs uppercase hover:bg-lime-400 transition">Secure</a>
+                    <a href="https://maps.google.com" target="_blank" class="px-4 bg-zinc-800 py-3 rounded-xl text-center font-black text-xs uppercase hover:bg-zinc-700 transition">Map</a>
+                </div>
+            </div>
+        </div>
+
+    </div><!-- /grid -->
+
+    <!-- No results state -->
+    <div id="noResults" class="hidden text-center py-20 text-gray-500">
+        <p class="text-4xl mb-4">🏜</p>
+        <p class="font-bold text-lg">No plots found in this area.</p>
+        <p class="text-sm mt-2">Try a different filter or <a href="https://wa.me/254724389620" class="text-lime-400 underline">WhatsApp us</a>.</p>
+    </div>
+</section>
+
+<!-- ══════════════════════ TESTIMONIALS ══════════════════════ -->
+<section id="testimonials" class="py-24 px-6 bg-zinc-900/50">
+    <div class="max-w-6xl mx-auto">
+        <div class="text-center mb-16 reveal">
+            <span class="text-[10px] uppercase tracking-widest text-lime-400 font-bold">Social Proof</span>
+            <h2 class="text-4xl md:text-5xl font-black uppercase mt-3">Real People. <span class="italic text-lime-400">Real Plots.</span></h2>
+        </div>
+        <div class="grid md:grid-cols-3 gap-8">
+            <div class="glass p-8 rounded-[2rem] reveal reveal-delay-1 hover:border-lime-400/30 transition">
+                <div class="text-lime-400 text-2xl mb-4">★★★★★</div>
+                <p class="text-gray-300 text-sm leading-relaxed mb-6">"Sikuamini itakuwa rahisi hivi. Nilipata title deed in 4 days. Gibeon ni the real deal, hakuna maneno."</p>
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-full bg-lime-400/20 flex items-center justify-center font-black text-lime-400">BM</div>
+                    <div>
+                        <span class="block font-bold text-sm">Brian Mutua</span>
+                        <span class="text-[10px] opacity-50 uppercase">Joska Heights Owner</span>
                     </div>
                 </div>
             </div>
-            <div class="rounded-[3rem] overflow-hidden rotate-2 border-4 border-lime-400/20">
-                <img src="https://images.unsplash.com/photo-1582407947304-fd86f028f716?q=80&w=1000" class="w-full h-96 object-cover">
-            </div>
-        </div>
-    </section>
-
-    <!-- Listings with Filter Tabs -->
-    <section id="listings" class="py-24 px-6 max-w-7xl mx-auto">
-        <div class="flex flex-col md:flex-row justify-between items-end mb-16 gap-6">
-            <h2 class="text-5xl font-black uppercase tracking-tighter">The Drops</h2>
-            <div class="flex gap-2 overflow-x-auto pb-2 w-full md:w-auto">
-                <button class="filter-btn active border border-white/20 px-6 py-2 rounded-full text-xs font-bold uppercase">All</button>
-                <button class="filter-btn border border-white/20 px-6 py-2 rounded-full text-xs font-bold uppercase">Joska</button>
-                <button class="filter-btn border border-white/20 px-6 py-2 rounded-full text-xs font-bold uppercase">Kitengela</button>
-                <button class="filter-btn border border-white/20 px-6 py-2 rounded-full text-xs font-bold uppercase">Malaa</button>
-            </div>
-        </div>
-
-        <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-            <!-- Plot Card -->
-            <div class="glass rounded-[2.5rem] overflow-hidden p-4 group hover:border-lime-400/40 transition">
-                <div class="rounded-[2rem] overflow-hidden h-64 mb-6">
-                    <img src="https://images.unsplash.com/photo-1500382017468-9049fed747ef?q=80&w=1000" class="w-full h-full object-cover">
-                </div>
-                <div class="px-2">
-                    <h3 class="text-2xl font-black mb-2 uppercase">Joska Heights</h3>
-                    <p class="text-gray-500 text-sm mb-4 italic">Electricity, water, 2km from tarmac.</p>
-                    <div class="flex justify-between items-center font-bold">
-                        <span class="text-lime-400">KSH 1.5M</span>
-                        <span class="text-[10px] opacity-40 uppercase">Instalments: 12 Mo.</span>
+            <div class="glass p-8 rounded-[2rem] reveal reveal-delay-2 hover:border-lime-400/30 transition">
+                <div class="text-lime-400 text-2xl mb-4">★★★★★</div>
+                <p class="text-gray-300 text-sm leading-relaxed mb-6">"I was skeptical at first — Kenyan real estate is full of cons. But Gibeon walked me through every step. Title is 100% clean."</p>
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-full bg-lime-400/20 flex items-center justify-center font-black text-lime-400">AN</div>
+                    <div>
+                        <span class="block font-bold text-sm">Aisha Njoroge</span>
+                        <span class="text-[10px] opacity-50 uppercase">Kitengela View Owner</span>
                     </div>
-                    <div class="mt-6 flex gap-2">
-                        <a href="https://wa.me/254724389620" class="flex-1 bg-white text-black py-3 rounded-xl text-center font-black text-xs uppercase hover:bg-lime-400 transition">Secure</a>
-                        <a href="#" class="px-4 bg-zinc-800 py-3 rounded-xl text-center font-black text-xs uppercase">Map</a>
+                </div>
+            </div>
+            <div class="glass p-8 rounded-[2rem] reveal reveal-delay-3 hover:border-lime-400/30 transition">
+                <div class="text-lime-400 text-2xl mb-4">★★★★★</div>
+                <p class="text-gray-300 text-sm leading-relaxed mb-6">"The instalment plan saved me. I paid 20% then cleared in 8 months. No pressure, no calls disturbing me. Just solid service."</p>
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-full bg-lime-400/20 flex items-center justify-center font-black text-lime-400">DK</div>
+                    <div>
+                        <span class="block font-bold text-sm">David Kamau</span>
+                        <span class="text-[10px] opacity-50 uppercase">Malaa Gardens Owner</span>
                     </div>
                 </div>
             </div>
         </div>
-    </section>
+    </div>
+</section>
 
-    <!-- FAQ Section -->
-    <section id="faq" class="py-24 px-6 max-w-3xl mx-auto">
-        <h2 class="text-4xl font-black mb-12 uppercase italic text-center">F.A.Q</h2>
-        <div class="space-y-4">
-            <details class="glass p-6 rounded-2xl cursor-pointer group">
-                <summary class="font-bold flex justify-between items-center">Can I get a title search before paying? <span class="group-open:rotate-45 transition">+</span></summary>
-                <p class="mt-4 text-gray-400 text-sm">Absolutely. We encourage all clients to verify the green card at the Ministry of Lands before making any commitments.</p>
-            </details>
-            <details class="glass p-6 rounded-2xl cursor-pointer group">
-                <summary class="font-bold flex justify-between items-center">Do you allow instalment payments? <span class="group-open:rotate-45 transition">+</span></summary>
-                <p class="mt-4 text-gray-400 text-sm">Yes. Pay a 20% deposit and clear the balance in 6 to 12 months.</p>
-            </details>
+<!-- ══════════════════════ FAQ ══════════════════════ -->
+<section id="faq" class="py-24 px-6 max-w-3xl mx-auto">
+    <div class="text-center mb-12 reveal">
+        <span class="text-[10px] uppercase tracking-widest text-lime-400 font-bold">Got Questions?</span>
+        <h2 class="text-4xl font-black mt-3 uppercase italic">F.A.Q</h2>
+    </div>
+    <div class="space-y-4">
+        <details class="glass p-6 rounded-2xl cursor-pointer reveal">
+            <summary class="font-bold flex justify-between items-center list-none">
+                Can I do a title search before paying?
+                <span class="faq-icon text-lime-400 text-xl font-light">+</span>
+            </summary>
+            <p class="mt-4 text-gray-400 text-sm leading-relaxed">Absolutely — and we encourage it. We'll provide the plot number and details so you can verify at the Ministry of Lands yourself. No commitments until you're satisfied.</p>
+        </details>
+        <details class="glass p-6 rounded-2xl cursor-pointer reveal">
+            <summary class="font-bold flex justify-between items-center list-none">
+                Do you allow instalment payments?
+                <span class="faq-icon text-lime-400 text-xl font-light">+</span>
+            </summary>
+            <p class="mt-4 text-gray-400 text-sm leading-relaxed">Yes. Pay a 20% deposit to lock in the plot at the current price, then clear the balance in 6–12 months. The title deed is transferred after full payment.</p>
+        </details>
+        <details class="glass p-6 rounded-2xl cursor-pointer reveal">
+            <summary class="font-bold flex justify-between items-center list-none">
+                What are the total costs? Any hidden fees?
+                <span class="faq-icon text-lime-400 text-xl font-light">+</span>
+            </summary>
+            <p class="mt-4 text-gray-400 text-sm leading-relaxed">Zero hidden fees. The listed price covers everything. Legal fees (stamp duty, transfer costs) are fixed and disclosed upfront before you sign anything.</p>
+        </details>
+        <details class="glass p-6 rounded-2xl cursor-pointer reveal">
+            <summary class="font-bold flex justify-between items-center list-none">
+                How long does the title transfer take?
+                <span class="faq-icon text-lime-400 text-xl font-light">+</span>
+            </summary>
+            <p class="mt-4 text-gray-400 text-sm leading-relaxed">Once full payment is confirmed, we process the transfer in 3 working days. We have an experienced legal team that moves fast.</p>
+        </details>
+        <details class="glass p-6 rounded-2xl cursor-pointer reveal">
+            <summary class="font-bold flex justify-between items-center list-none">
+                Can I build on the plot immediately?
+                <span class="faq-icon text-lime-400 text-xl font-light">+</span>
+            </summary>
+            <p class="mt-4 text-gray-400 text-sm leading-relaxed">Yes, all our plots are ready for development. We can also connect you with trusted contractors and architects if needed — just ask.</p>
+        </details>
+        <details class="glass p-6 rounded-2xl cursor-pointer reveal">
+            <summary class="font-bold flex justify-between items-center list-none">
+                Do you organise site visits?
+                <span class="faq-icon text-lime-400 text-xl font-light">+</span>
+            </summary>
+            <p class="mt-4 text-gray-400 text-sm leading-relaxed">Every Saturday we run group site visits — transport arranged, no charge. Book below or DM us on WhatsApp to sort your date.</p>
+        </details>
+    </div>
+</section>
+
+<!-- ══════════════════════ SITE VISIT FORM ══════════════════════ -->
+<section id="visit" class="py-24 px-6 bg-lime-400 text-black">
+    <div class="max-w-4xl mx-auto">
+        <div class="text-center mb-12">
+            <h2 class="text-5xl md:text-7xl font-black tracking-tighter uppercase leading-none">See it. <br> <span class="italic opacity-70">Believe it.</span></h2>
+            <p class="mt-4 font-medium opacity-70 max-w-sm mx-auto">Book a free site visit — we'll show you around and answer every question, no pressure.</p>
         </div>
-    </section>
+        <form id="visitForm" class="grid md:grid-cols-2 gap-6 bg-black/10 backdrop-blur p-8 md:p-12 rounded-[3rem] border border-black/10">
+            <input type="text" id="visitorName" placeholder="Your Name" required class="bg-white/50 p-4 rounded-xl border border-black/10 outline-none placeholder:text-black/50 font-bold focus:bg-white/80 transition">
+            <input type="tel" id="visitorPhone" placeholder="Phone Number (07xx...)" required class="bg-white/50 p-4 rounded-xl border border-black/10 outline-none placeholder:text-black/50 font-bold focus:bg-white/80 transition">
+            <select id="visitorPlot" required class="bg-white/50 p-4 rounded-xl border border-black/10 outline-none font-bold focus:bg-white/80 transition">
+                <option value="" disabled selected>Select Plot of Interest</option>
+                <option>Joska Heights</option>
+                <option>Joska East</option>
+                <option>Kitengela View</option>
+                <option>Kitengela South</option>
+                <option>Malaa Gardens</option>
+                <option>Malaa Prime</option>
+            </select>
+            <input type="date" id="visitorDate" required class="bg-white/50 p-4 rounded-xl border border-black/10 outline-none font-bold focus:bg-white/80 transition">
+            <button type="submit" id="submitBtn" class="md:col-span-2 bg-black text-white py-5 rounded-2xl font-black text-xl hover:scale-[1.02] active:scale-95 transition">
+                CONFIRM VISIT →
+            </button>
+        </form>
 
-    <!-- Site Visit Form -->
-    <section id="visit" class="py-24 px-6 bg-lime-400 text-black">
-        <div class="max-w-4xl mx-auto">
-            <h2 class="text-5xl md:text-7xl font-black mb-12 tracking-tighter uppercase text-center leading-none">See it. <br> Believe it.</h2>
-            <form class="grid md:grid-cols-2 gap-6 glass border-black/10 p-8 md:p-12 rounded-[3rem]">
-                <input type="text" placeholder="Your Name" class="bg-white/40 p-4 rounded-xl border border-black/10 outline-none placeholder:text-black/60 font-bold">
-                <input type="tel" placeholder="Phone Number" class="bg-white/40 p-4 rounded-xl border border-black/10 outline-none placeholder:text-black/60 font-bold">
-                <select class="bg-white/40 p-4 rounded-xl border border-black/10 outline-none font-bold">
-                    <option disabled selected>Select Plot of Interest</option>
-                    <option>Joska Heights</option>
-                    <option>Kitengela View</option>
-                    <option>Malaa Gardens</option>
-                </select>
-                <input type="date" class="bg-white/40 p-4 rounded-xl border border-black/10 outline-none font-bold">
-                <button class="md:col-span-2 bg-black text-white py-5 rounded-2xl font-black text-xl hover:scale-105 transition">CONFIRM "BET"</button>
-            </form>
+        <!-- Success state -->
+        <div id="visitSuccess" class="hidden text-center py-12">
+            <div class="text-7xl mb-6">🎉</div>
+            <h3 class="text-4xl font-black uppercase mb-4">You're In!</h3>
+            <p class="font-medium opacity-70 mb-6">We'll hit you on WhatsApp to confirm the time. See you on site.</p>
+            <a href="https://wa.me/254724389620" target="_blank" class="bg-black text-white px-10 py-4 rounded-full font-black uppercase text-sm inline-block hover:bg-white hover:text-black transition">Chat on WhatsApp →</a>
         </div>
-    </section>
+    </div>
+</section>
 
-    <!-- Contact & Footer -->
-    <footer id="contact" class="py-20 px-6 border-t border-white/10">
-        <div class="max-w-7xl mx-auto grid md:grid-cols-3 gap-12">
-            <div>
-                <h3 class="font-black text-2xl mb-4 italic uppercase">Gibeon.</h3>
-                <p class="text-gray-500 text-sm">Turning land-seekers into land-owners since day one.</p>
-            </div>
-            <div>
-                <h4 class="font-bold text-[10px] uppercase tracking-widest mb-4">The Office</h4>
-                <p class="text-gray-400 text-sm">Nairobi, Kenya<br>Business Center, Suite 404</p>
-                <p class="mt-2 text-gray-400 text-sm">hello@gibeon.co.ke</p>
-            </div>
-            <div>
-                <h4 class="font-bold text-[10px] uppercase tracking-widest mb-4">Direct</h4>
-                <p class="text-gray-400 text-sm">+254 724 389 620</p>
-                <div class="flex gap-4 mt-4">
-                    <span class="text-xl">𝕏</span> <span class="text-xl">📷</span> <span class="text-xl">📱</span>
+<!-- ══════════════════════ FOOTER ══════════════════════ -->
+<footer id="contact" class="py-20 px-6 border-t border-white/10">
+    <div class="max-w-7xl mx-auto">
+        <div class="grid md:grid-cols-4 gap-12 mb-16">
+            <div class="md:col-span-2">
+                <h3 class="font-black text-4xl mb-4 italic uppercase" style="font-family:'Syne',sans-serif;">Gibeon.</h3>
+                <p class="text-gray-500 text-sm max-w-xs leading-relaxed">Turning land-seekers into land-owners since day one. Verified. Trusted. Yours.</p>
+                <div class="flex gap-4 mt-6">
+                    <a href="https://wa.me/254724389620" target="_blank" class="bg-[#25D366] text-black w-10 h-10 rounded-full flex items-center justify-center font-black text-xs hover:scale-110 transition">WA</a>
+                    <a href="#" class="glass w-10 h-10 rounded-full flex items-center justify-center hover:border-lime-400/50 transition text-sm">𝕏</a>
+                    <a href="#" class="glass w-10 h-10 rounded-full flex items-center justify-center hover:border-lime-400/50 transition text-sm">📷</a>
+                    <a href="tel:+254724389620" class="glass w-10 h-10 rounded-full flex items-center justify-center hover:border-lime-400/50 transition text-sm">📞</a>
                 </div>
             </div>
+            <div>
+                <h4 class="font-bold text-[10px] uppercase tracking-widest mb-4 text-lime-400">Quick Links</h4>
+                <ul class="space-y-2 text-sm text-gray-400">
+                    <li><a href="#about" class="hover:text-white transition">About</a></li>
+                    <li><a href="#listings" class="hover:text-white transition">Listings</a></li>
+                    <li><a href="#faq" class="hover:text-white transition">FAQ</a></li>
+                    <li><a href="#visit" class="hover:text-white transition">Book Visit</a></li>
+                </ul>
+            </div>
+            <div>
+                <h4 class="font-bold text-[10px] uppercase tracking-widest mb-4 text-lime-400">Contact</h4>
+                <ul class="space-y-2 text-sm text-gray-400">
+                    <li>Nairobi, Kenya</li>
+                    <li>Business Center, Suite 404</li>
+                    <li class="mt-3"><a href="mailto:hello@gibeon.co.ke" class="hover:text-white transition">hello@gibeon.co.ke</a></li>
+                    <li><a href="tel:+254724389620" class="hover:text-white transition">+254 724 389 620</a></li>
+                </ul>
+            </div>
         </div>
-    </footer>
+        <div class="border-t border-white/10 pt-8 flex flex-col md:flex-row justify-between items-center gap-4 text-xs text-gray-600">
+            <span>© 2025 Gibeon Properties. All rights reserved.</span>
+            <span>Built with 🔥 for land-owners.</span>
+        </div>
+    </div>
+</footer>
 
-    <script>
-        function toggleMenu() {
-            document.getElementById('mobileMenu').classList.toggle('hidden');
+<!-- ══════════════════════ SCRIPTS ══════════════════════ -->
+<script>
+// ── Mobile menu ──────────────────────────────────────────
+const menu = document.getElementById('mobileMenu');
+document.getElementById('menuToggle').addEventListener('click', () => menu.classList.remove('hidden'));
+document.getElementById('menuClose').addEventListener('click', () => menu.classList.add('hidden'));
+document.querySelectorAll('.mobile-link').forEach(l => l.addEventListener('click', () => menu.classList.add('hidden')));
+
+// ── Scroll reveal ────────────────────────────────────────
+const revealObserver = new IntersectionObserver((entries) => {
+    entries.forEach(el => {
+        if (el.isIntersecting) {
+            el.target.classList.add('visible');
+            revealObserver.unobserve(el.target);
         }
-    </script>
+    });
+}, { threshold: 0.1 });
+document.querySelectorAll('.reveal').forEach(el => revealObserver.observe(el));
+
+// ── Animate progress bars ────────────────────────────────
+const barObserver = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+        if (entry.isIntersecting) {
+            const fill = entry.target;
+            const target = fill.style.getPropertyValue('--target-width') || fill.dataset.width;
+            setTimeout(() => { fill.style.width = target; }, 200);
+            barObserver.unobserve(fill);
+        }
+    });
+}, { threshold: 0.3 });
+document.querySelectorAll('.progress-fill').forEach(el => barObserver.observe(el));
+
+// ── Count up numbers ─────────────────────────────────────
+const countObserver = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+        if (!entry.isIntersecting) return;
+        const el = entry.target;
+        const target = parseInt(el.dataset.target, 10);
+        let current = 0;
+        const step = Math.ceil(target / 60);
+        const timer = setInterval(() => {
+            current = Math.min(current + step, target);
+            el.textContent = current + (target >= 100 ? '+' : '');
+            if (current >= target) clearInterval(timer);
+        }, 24);
+        countObserver.unobserve(el);
+    });
+}, { threshold: 0.5 });
+document.querySelectorAll('.count-num[data-target]').forEach(el => countObserver.observe(el));
+
+// ── Filter tabs ──────────────────────────────────────────
+const filterBtns = document.querySelectorAll('.filter-btn');
+filterBtns.forEach(btn => {
+    btn.addEventListener('click', () => {
+        filterBtns.forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+
+        const filter = btn.dataset.filter;
+        const cards = document.querySelectorAll('.plot-card');
+        let visible = 0;
+
+        cards.forEach(card => {
+            const loc = card.dataset.location;
+            const show = filter === 'all' || loc === filter;
+            if (show) {
+                card.style.display = '';
+                card.classList.remove('hidden-card');
+                visible++;
+            } else {
+                card.classList.add('hidden-card');
+                setTimeout(() => { if (card.classList.contains('hidden-card')) card.style.display = 'none'; }, 300);
+            }
+        });
+
+        document.getElementById('noResults').style.display = visible === 0 ? 'block' : 'none';
+    });
+});
+
+// ── Site visit form ──────────────────────────────────────
+document.getElementById('visitForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+    const btn = document.getElementById('submitBtn');
+    btn.textContent = 'Confirmed! 🎉';
+    btn.disabled = true;
+
+    const name = document.getElementById('visitorName').value;
+    const phone = document.getElementById('visitorPhone').value;
+    const plot = document.getElementById('visitorPlot').value;
+    const date = document.getElementById('visitorDate').value;
+
+    // Build WhatsApp pre-fill
+    const msg = encodeURIComponent(`Hi! I booked a site visit.\n\nName: ${name}\nPhone: ${phone}\nPlot: ${plot}\nDate: ${date}`);
+
+    setTimeout(() => {
+        this.style.display = 'none';
+        document.getElementById('visitSuccess').classList.remove('hidden');
+        window.open(`https://wa.me/254724389620?text=${msg}`, '_blank');
+    }, 800);
+});
+</script>
+
 </body>
 </html>
